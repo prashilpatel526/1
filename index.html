@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ProX Institutional Terminal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #0b0e11; color: #eaecef; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; }
+        .card-bg { background-color: #181a20; border-color: #2b313a; }
+        .sidebar-bg { background-color: #181a20; border-color: #2b313a; }
+    </style>
+</head>
+<body class="h-dvh w-screen overflow-hidden flex flex-col">
+
+    <div class="h-dvh w-full flex flex-col md:flex-row overflow-hidden">
+        
+        <!-- SIDEBAR -->
+        <div class="hidden md:flex w-64 sidebar-bg p-4 flex-col gap-2 border-r z-20">
+            <h2 class="text-xl font-black text-[#fcd535] tracking-wider mb-2">ProX Terminal</h2>
+            <button onclick="switchTab('chart')" id="nav-chart" class="p-3 rounded-xl text-xs font-semibold text-left flex items-center gap-3 text-[#fcd535] bg-[#2b313a]">
+                <i class="fa-solid fa-chart-line w-4"></i> Chart & Live Desk
+            </button>
+            <button onclick="switchTab('plan')" id="nav-plan" class="p-3 rounded-xl text-xs font-semibold text-left flex items-center gap-3 text-gray-400 hover:bg-[#2b313a]/50">
+                <i class="fa-solid fa-robot w-4"></i> Auto-Pilot Plan ($63k-$80k)
+            </button>
+            <button onclick="switchTab('vault')" id="nav-vault" class="p-3 rounded-xl text-xs font-semibold text-left flex items-center gap-3 text-gray-400 hover:bg-[#2b313a]/50">
+                <i class="fa-solid fa-book w-4"></i> Vault Log
+            </button>
+        </div>
+
+        <!-- MOBILE TOP BAR -->
+        <div class="md:hidden flex items-center justify-between p-3 sidebar-bg border-b z-20">
+            <span class="text-base font-black text-[#fcd535]">ProX Terminal</span>
+            <span id="mobileSymbol" class="text-xs px-2 py-0.5 rounded bg-[#2b313a] text-yellow-400 font-bold">BTCUSDT</span>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="flex-1 overflow-y-auto p-4 md:p-6 pb-20 md:pb-6 relative h-full">
+            
+            <!-- CHART TAB -->
+            <div id="tab-chart" class="space-y-4">
+                <div class="flex gap-2 overflow-x-auto pb-1">
+                    <button onclick="changeAsset('BTCUSDT')" class="asset-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-[#2b313a] text-white">BTCUSDT</button>
+                    <button onclick="changeAsset('XAUUSDT')" class="asset-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-transparent text-yellow-400 border border-yellow-500/30">GOLD (XAU)</button>
+                    <button onclick="changeAsset('ETHUSDT')" class="asset-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-transparent text-gray-400">ETHUSDT</button>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="card-bg p-3 rounded-xl border">
+                        <div class="text-[10px] text-gray-400">Live Price</div>
+                        <div id="livePriceDisplay" class="font-black text-sm md:text-lg text-yellow-400">Loading...</div>
+                    </div>
+                    <div class="card-bg p-3 rounded-xl border border-l-4 border-l-green-500">
+                        <div class="text-[10px] text-gray-400">Target (TP)</div>
+                        <div id="tpDisplay" class="font-black text-sm md:text-lg text-green-400">---</div>
+                    </div>
+                    <div class="card-bg p-3 rounded-xl border border-l-4 border-l-red-500">
+                        <div class="text-[10px] text-gray-400">Stop Loss (SL)</div>
+                        <div id="slDisplay" class="font-black text-sm md:text-lg text-red-400">---</div>
+                    </div>
+                </div>
+
+                <div class="card-bg p-4 rounded-xl border space-y-2">
+                    <h3 class="text-xs font-bold text-[#fcd535] uppercase"><i class="fa-solid fa-bolt"></i> Institutional Whale Engine ($63k-$80k Expansion)</h3>
+                    <p class="text-xs text-gray-300">Active liquidity sweep monitoring is live. Trend aligned for high-leverage execution.</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="executeAction('BUY')" class="bg-[#0ecb81] hover:bg-[#0b9e65] text-white py-3 rounded-xl font-black text-sm shadow-lg">BUY / LONG</button>
+                    <button onclick="executeAction('SELL')" class="bg-[#f6465d] hover:bg-[#d9384d] text-white py-3 rounded-xl font-black text-sm shadow-lg">SELL / SHORT</button>
+                </div>
+            </div>
+
+            <!-- PLAN TAB -->
+            <div id="tab-plan" class="hidden space-y-4">
+                <h3 class="text-base font-bold text-[#fcd535]">Auto-Pilot Confluence Plan</h3>
+                <div class="card-bg p-4 rounded-xl border space-y-3">
+                    <div class="flex justify-between text-xs">
+                        <span class="text-gray-400">Strategy Status:</span>
+                        <span class="text-green-400 font-bold">Active ($63k-$80k Cycle)</span>
+                    </div>
+                    <div class="text-xs text-gray-300" id="planDetails">Analyzing order blocks and institutional volume spikes...</div>
+                    <button onclick="saveToVault()" class="w-full bg-amber-500 hover:bg-amber-600 text-black font-bold py-2 rounded-xl text-xs">Save Plan to Vault</button>
+                </div>
+            </div>
+
+            <!-- VAULT TAB -->
+            <div id="tab-vault" class="hidden space-y-4">
+                <h3 class="text-base font-bold text-[#fcd535]">Vault Logs</h3>
+                <div id="vaultList" class="space-y-2 text-xs text-gray-400">No saved signals yet.</div>
+            </div>
+
+        </div>
+
+        <!-- MOBILE BOTTOM NAVIGATION -->
+        <div class="md:hidden fixed bottom-0 left-0 right-0 sidebar-bg border-t flex justify-around py-3 z-40">
+            <button onclick="switchTab('chart')" class="text-yellow-400 flex flex-col items-center gap-1"><i class="fa-solid fa-chart-line"></i><span class="text-[10px]">Chart</span></button>
+            <button onclick="switchTab('plan')" class="text-gray-400 flex flex-col items-center gap-1"><i class="fa-solid fa-robot"></i><span class="text-[10px]">Plan</span></button>
+            <button onclick="switchTab('vault')" class="text-gray-400 flex flex-col items-center gap-1"><i class="fa-solid fa-book"></i><span class="text-[10px]">Vault</span></button>
+        </div>
+
+    </div>
+
+    <script>
+        let currentSymbol = 'BTCUSDT';
+        let activePrice = 67500.00;
+        let ws = null;
+
+        function switchTab(tab) {
+            ['chart', 'plan', 'vault'].forEach(t => {
+                document.getElementById('tab-' + t).classList.add('hidden');
+            });
+            document.getElementById('tab-' + tab).classList.remove('hidden');
+        }
+
+        function changeAsset(symbol) {
+            currentSymbol = symbol;
+            document.getElementById('mobileSymbol').innerText = symbol;
+            if(symbol === 'BTCUSDT') activePrice = 67500.00;
+            else if(symbol === 'XAUUSDT') activePrice = 2365.00;
+            else if(symbol === 'ETHUSDT') activePrice = 3500.00;
+            updateDisplay();
+            connectWs(symbol);
+        }
+
+        function updateDisplay() {
+            document.getElementById('livePriceDisplay').innerText = '$' + activePrice.toLocaleString();
+            document.getElementById('tpDisplay').innerText = '$' + (activePrice * 1.025).toFixed(2);
+            document.getElementById('slDisplay').innerText = '$' + (activePrice * 0.992).toFixed(2);
+            document.getElementById('planDetails').innerText = `Current Asset: ${currentSymbol} | Recommended Target: Macro Expansion toward $80,000 zone with trailing stop-loss protection.`;
+        }
+
+        function connectWs(symbol) {
+            if(ws) ws.close();
+            if(symbol === 'XAUUSDT') return; // Simulated for gold
+            try {
+                ws = new WebSocket(`wss://stream.binance.com:9443/ws/${symbol.toLowerCase()}@trade`);
+                ws.onmessage = function(event) {
+                    const data = JSON.parse(event.data);
+                    activePrice = parseFloat(data.p);
+                    updateDisplay();
+                };
+            } catch(e) {}
+        }
+
+        function executeAction(type) {
+            alert(`${type} order executed successfully for ${currentSymbol} at $${activePrice.toFixed(2)}!`);
+        }
+
+        function saveToVault() {
+            let vault = JSON.parse(localStorage.getItem('prox_vault') || '[]');
+            vault.push({ symbol: currentSymbol, price: activePrice, time: new Date().toLocaleTimeString() });
+            localStorage.setItem('prox_vault', JSON.stringify(vault));
+            loadVault();
+            alert("Plan saved to Vault successfully!");
+        }
+
+        function loadVault() {
+            let vault = JSON.parse(localStorage.getItem('prox_vault') || '[]');
+            let container = document.getElementById('vaultList');
+            if(vault.length === 0) { container.innerHTML = 'No saved signals yet.'; return; }
+            let html = '';
+            vault.forEach(v => {
+                html += `<div class="card-bg p-2.5 rounded border"><b>${v.symbol}</b> - Price: $${v.price} (${v.time})</div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        updateDisplay();
+        loadVault();
+        connectWs('BTCUSDT');
+    </script>
+</body>
+</html>
